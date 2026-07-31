@@ -6,9 +6,16 @@ import org.springframework.web.multipart.MultipartFile;
 
 import com.annotation.model.DocumentEntity;
 import com.annotation.service.DocumentService;
+import io.swagger.v3.oas.annotations.tags.Tag;
 
 @RestController
 @RequestMapping("/api/documents")
+@Tag(
+    name = "Document API",
+    description = "APIs for uploading and managing documents"
+)
+
+
 public class DocumentController {
 
     private final DocumentService documentService;
