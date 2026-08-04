@@ -1,20 +1,29 @@
 package com.annotation.repository;
-
-import java.util.List;
-
-import org.springframework.data.mongodb.repository.MongoRepository;
-import org.springframework.stereotype.Repository;
-
+import org.springframework.data.mongodb.repository.Query;
 import com.annotation.model.AnnotationEntity;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.mongodb.repository.MongoRepository;
 
-@Repository
-public interface AnnotationRepository extends MongoRepository<AnnotationEntity, String> {
+public interface AnnotationRepository
+        extends MongoRepository<AnnotationEntity, String> {
 
-    /**
-     * Fetch all annotations belonging to a specific document.
-     *
-     * @param documentId The ID of the document.
-     * @return List of annotations associated with the document.
-     */
-    List<AnnotationEntity> findByDocumentId(String documentId);
+    Page<AnnotationEntity> findByDocumentId(
+            String documentId,
+            Pageable pageable);
+
+            @Query("""
+{
+  "$or": [
+    { "comment": { "$regex": ?0, "$options": "i" } },
+    { "selectedText": { "$regex": ?0, "$options": "i" } },
+    { "author": { "$regex": ?0, "$options": "i" } }
+  ]
+}
+""")
+Page<AnnotationEntity> searchAnnotations(
+        String keyword,
+        Pageable pageable
+);
+
 }

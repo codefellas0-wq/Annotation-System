@@ -1,6 +1,7 @@
 package com.annotation.dto;
 
-import jakarta.validation.constraints.Max;
+
+import jakarta.validation.constraints.AssertTrue;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
@@ -92,6 +93,13 @@ public class AnnotationDTO {
 
     public void setColor(String color) {
         this.color = color;
+    }
+
+    @AssertTrue(message = "End offset must be greater than or equal to start offset.")
+    public boolean isValidRange() {
+        return startOffset != null
+                && endOffset != null
+                && endOffset >= startOffset;
     }
 
     @Override

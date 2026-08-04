@@ -1,7 +1,7 @@
 package com.annotation.controller;
 
-import java.util.List;
 
+import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -58,28 +58,58 @@ public class AnnotationController {
     /**
      * Get all annotations for a document.
      */
-    @Operation(
-    summary = "Get Annotations",
-    description = "Returns all annotations for a given document."
+   @Operation(
+        summary = "Get Annotations",
+        description = "Returns paginated and sorted annotations for a document."
 )
+@ApiResponses(value = {
+        @io.swagger.v3.oas.annotations.responses.ApiResponse(
+                responseCode = "200",
+                description = "Annotations retrieved successfully"
+        ),
+        @io.swagger.v3.oas.annotations.responses.ApiResponse(
+                responseCode = "400",
+                description = "Invalid request parameters"
+        ),
+        @io.swagger.v3.oas.annotations.responses.ApiResponse(
+                responseCode = "404",
+                description = "Document not found"
+        )
+})
+@GetMapping("/document/{documentId}")
+public ResponseEntity<ApiResponse<Page<AnnotationEntity>>> getAnnotationsByDocumentId(
 
+        @PathVariable String documentId,
 
-    @GetMapping("/document/{documentId}")
-    public ResponseEntity<ApiResponse<List<AnnotationEntity>>> getAnnotationsByDocumentId(
-            @PathVariable String documentId) {
+        @RequestParam(defaultValue = "0")
+        int page,
 
-        List<AnnotationEntity> annotations =
-                annotationService.getAnnotationsByDocumentId(documentId);
+        @RequestParam(defaultValue = "10")
+        int size,
 
-        ApiResponse<List<AnnotationEntity>> response =
-                new ApiResponse<>(
-                        true,
-                        "Annotations retrieved successfully.",
-                        annotations);
+        @RequestParam(defaultValue = "createdAt")
+        String sortBy,
 
-        return ResponseEntity.ok(response);
-    }
+        @RequestParam(defaultValue = "desc")
+        String direction) {
 
+    Page<AnnotationEntity> annotations =
+            annotationService.getAnnotationsByDocumentId(
+                    documentId,
+                    page,
+                    size,
+                    sortBy,
+                    direction);
+
+    ApiResponse<Page<AnnotationEntity>> response =
+            new ApiResponse<>(
+                    true,
+                    "Annotations retrieved successfully.",
+                    annotations
+            );
+
+    return ResponseEntity.ok(response);
+}
     /**
      * Delete annotation.
      */@Operation(
@@ -120,6 +150,100 @@ public ResponseEntity<ApiResponse<AnnotationEntity>> updateAnnotation(
                     true,
                     "Annotation updated successfully.",
                     updatedAnnotation
+            );
+
+    return ResponseEntity.ok(response);
+}
+
+@Operation(
+        summary = "Search Annotations",
+        description = "Search annotations by keyword in comment, selected text, or author."
+)
+@ApiResponses(value = {
+        @io.swagger.v3.oas.annotations.responses.ApiResponse(
+                responseCode = "200",
+                description = "Search completed successfully"
+        ),
+        @io.swagger.v3.oas.annotations.responses.ApiResponse(
+                responseCode = "400",
+                description = "Invalid request parameters"
+        )
+})
+@GetMapping("/search")
+public ResponseEntity<ApiResponse<Page<AnnotationEntity>>> searchAnnotations(
+
+        @RequestParam String keyword,
+
+        @RequestParam(defaultValue = "0")
+        int page,
+
+        @RequestParam(defaultValue = "10")
+        int size,
+
+        @RequestParam(defaultValue = "createdAt")
+        String sortBy,
+
+        @RequestParam(defaultValue = "desc")
+        String direction) {
+
+    Page<AnnotationEntity> annotations =
+            annotationService.searchAnnotations(
+                    keyword,
+                    page,
+                    size,
+                    sortBy,
+                    direction);
+
+    ApiResponse<Page<AnnotationEntity>> response =
+            new ApiResponse<>(
+                    true,
+                    "Search completed successfully.",
+                    annotations
+            );
+
+    return ResponseEntity.ok(response);
+}
+
+/* FILTERING */
+@Operation(
+        summary = "Filter Annotations",
+        description = "Filters annotations dynamically using optional parameters."
+)
+@GetMapping("/filter")
+public ResponseEntity<ApiResponse<Page<AnnotationEntity>>> filterAnnotations(
+
+        @RequestParam(required = false)
+        String author,
+
+        @RequestParam(required = false)
+        Boolean resolved,
+
+        @RequestParam(defaultValue = "0")
+        int page,
+
+        @RequestParam(defaultValue = "10")
+        int size,
+
+        @RequestParam(defaultValue = "createdAt")
+        String sortBy,
+
+        @RequestParam(defaultValue = "desc")
+        String direction) {
+
+    Page<AnnotationEntity> annotations =
+            annotationService.filterAnnotations(
+                    author,
+                    resolved,
+                    page,
+                    size,
+                    sortBy,
+                    direction);
+
+    ApiResponse<Page<AnnotationEntity>> response =
+            new ApiResponse<>(
+                    true,
+                    "Annotations filtered successfully.",
+                    annotations
             );
 
     return ResponseEntity.ok(response);
