@@ -1,24 +1,39 @@
 package com.annotation.service;
-import org.springframework.data.mongodb.core.MongoTemplate;
+
 import java.time.LocalDateTime;
-
+import java.util.ArrayList;
 import java.util.List;
-import org.slf4j.Logger;
-import org.springframework.data.domain.PageImpl;
-import org.slf4j.LoggerFactory;
-import org.springframework.data.domain.Page;
-import com.annotation.util.PageableUtil;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
-import org.springframework.stereotype.Service;
+
+import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
+
+import org.springframework.stereotype.Service;
+
 import com.annotation.dto.AnnotationDTO;
+import com.annotation.dto.AnnotationRectangleDTO;
 import com.annotation.dto.UpdateAnnotationDTO;
+
 import com.annotation.exception.ResourceNotFoundException;
+
 import com.annotation.model.AnnotationEntity;
+import com.annotation.model.AnnotationRectangle;
+import com.annotation.model.UserEntity;
+
 import com.annotation.repository.AnnotationRepository;
 
+import com.annotation.security.AuthenticationService;
+
+import com.annotation.util.PageableUtil;
+
+import com.annotation.websocket.AnnotationEventPublisher;
 
 @Service
 public class AnnotationService {
@@ -27,41 +42,143 @@ public class AnnotationService {
             LoggerFactory.getLogger(AnnotationService.class);
 
     private final AnnotationRepository annotationRepository;
+
     private final MongoTemplate mongoTemplate;
 
-    public AnnotationService(
-        AnnotationRepository annotationRepository,
-        MongoTemplate mongoTemplate) {
+    private final AuthenticationService authenticationService;
 
-    this.annotationRepository = annotationRepository;
-    this.mongoTemplate = mongoTemplate;
-}
+    private final AnnotationEventPublisher eventPublisher;
+
+    public AnnotationService(
+            AnnotationRepository annotationRepository,
+            MongoTemplate mongoTemplate,
+            AuthenticationService authenticationService,
+            AnnotationEventPublisher eventPublisher) {
+
+        this.annotationRepository = annotationRepository;
+        this.mongoTemplate = mongoTemplate;
+        this.authenticationService = authenticationService;
+        this.eventPublisher = eventPublisher;
+    }
+
     /**
      * Create a new annotation.
      */
-    public AnnotationEntity createAnnotation(AnnotationDTO dto) {
+    public AnnotationEntity createAnnotation(
+            AnnotationDTO dto) {
 
-        logger.info("Creating annotation for documentId: {}",
-                dto.getDocumentId());
+        logger.info(
+                "Creating annotation for documentId: {}",
+                dto.getDocumentId()
+        );
 
-        AnnotationEntity annotation = new AnnotationEntity();
+        AnnotationEntity annotation =
+                new AnnotationEntity();
 
-        annotation.setDocumentId(dto.getDocumentId());
-        annotation.setSelectedText(dto.getSelectedText());
-        annotation.setComment(dto.getComment());
-        annotation.setAuthor(dto.getAuthor());
-        annotation.setStartOffset(dto.getStartOffset());
-        annotation.setEndOffset(dto.getEndOffset());
-        annotation.setColor(dto.getColor());
+        /*
+         * Basic annotation information
+         */
+        annotation.setDocumentId(
+                dto.getDocumentId()
+        );
+
+        annotation.setSelectedText(
+                dto.getSelectedText()
+        );
+
+        annotation.setComment(
+                dto.getComment()
+        );
+
+        annotation.setPage(
+                dto.getPage()
+        );
+
+        annotation.setColor(
+                dto.getColor()
+        );
+
+        /*
+         * Get currently authenticated user.
+         */
+        UserEntity currentUser =
+                authenticationService.getCurrentUser();
+
+        annotation.setAuthorId(
+                currentUser.getId()
+        );
+
+        /*
+         * Convert DTO rectangles into
+         * MongoDB annotation rectangles.
+         */
+        List<AnnotationRectangle> rectangles =
+                new ArrayList<>();
+
+        for (
+                AnnotationRectangleDTO rectangleDTO
+                : dto.getRectangles()
+        ) {
+
+            AnnotationRectangle rectangle =
+                    new AnnotationRectangle();
+
+            rectangle.setX(
+                    rectangleDTO.getX()
+            );
+
+            rectangle.setY(
+                    rectangleDTO.getY()
+            );
+
+            rectangle.setWidth(
+                    rectangleDTO.getWidth()
+            );
+
+            rectangle.setHeight(
+                    rectangleDTO.getHeight()
+            );
+
+            rectangles.add(rectangle);
+        }
+
+        annotation.setRectangles(
+                rectangles
+        );
+
+        /*
+         * Annotation state.
+         */
         annotation.setResolved(false);
-        annotation.setCreatedAt(LocalDateTime.now());
-        annotation.setUpdatedAt(LocalDateTime.now());
 
+        annotation.setCreatedAt(
+                LocalDateTime.now()
+        );
+
+        annotation.setUpdatedAt(
+                LocalDateTime.now()
+        );
+
+        /*
+         * Save annotation.
+         */
         AnnotationEntity savedAnnotation =
                 annotationRepository.save(annotation);
 
-        logger.info("Annotation created successfully with id: {}",
-                savedAnnotation.getId());
+        logger.info(
+                "Annotation created successfully with id: {}",
+                savedAnnotation.getId()
+        );
+
+        /*
+         * Broadcast annotation through WebSocket.
+         *
+         * This keeps the existing real-time
+         * collaboration behavior.
+         */
+        eventPublisher.publishAnnotationCreated(
+                savedAnnotation
+        );
 
         return savedAnnotation;
     }
@@ -69,65 +186,78 @@ public class AnnotationService {
     /**
      * Fetch annotations for a document with pagination.
      */
-   public Page<AnnotationEntity> getAnnotationsByDocumentId(
-        String documentId,
-        int page,
-        int size,
-        String sortBy,
-        String direction) {
+    public Page<AnnotationEntity>
+    getAnnotationsByDocumentId(
+            String documentId,
+            int page,
+            int size,
+            String sortBy,
+            String direction) {
 
-    logger.info(
-            "Fetching annotations | documentId={} | page={} | size={} | sortBy={} | direction={}",
-            documentId,
-            page,
-            size,
-            sortBy,
-            direction);
-
-    
-
-   
-    Pageable pageable =
-        PageableUtil.buildPageable(
+        logger.info(
+                "Fetching annotations | documentId={} | page={} | size={} | sortBy={} | direction={}",
+                documentId,
                 page,
                 size,
                 sortBy,
                 direction
         );
-    
-    Page<AnnotationEntity> annotations =
-            annotationRepository.findByDocumentId(
-                    documentId,
-                    pageable);
 
-    logger.info(
-            "Retrieved {} annotation(s)",
-            annotations.getNumberOfElements());
+        Pageable pageable =
+                PageableUtil.buildPageable(
+                        page,
+                        size,
+                        sortBy,
+                        direction
+                );
 
-    return annotations;
-}
+        Page<AnnotationEntity> annotations =
+                annotationRepository.findByDocumentId(
+                        documentId,
+                        pageable
+                );
+
+        logger.info(
+                "Retrieved {} annotation(s)",
+                annotations.getNumberOfElements()
+        );
+
+        return annotations;
+    }
 
     /**
      * Delete annotation by ID.
      */
-    public void deleteAnnotation(String annotationId) {
+    public void deleteAnnotation(
+            String annotationId) {
 
-        logger.info("Deleting annotation with id: {}",
-                annotationId);
+        logger.info(
+                "Deleting annotation with id: {}",
+                annotationId
+        );
 
-        if (!annotationRepository.existsById(annotationId)) {
+        if (!annotationRepository.existsById(
+                annotationId)) {
 
-            logger.warn("Annotation not found with id: {}",
-                    annotationId);
+            logger.warn(
+                    "Annotation not found with id: {}",
+                    annotationId
+            );
 
             throw new ResourceNotFoundException(
-                    "Annotation not found with id: " + annotationId);
+                    "Annotation not found with id: "
+                            + annotationId
+            );
         }
 
-        annotationRepository.deleteById(annotationId);
+        annotationRepository.deleteById(
+                annotationId
+        );
 
-        logger.info("Annotation deleted successfully: {}",
-                annotationId);
+        logger.info(
+                "Annotation deleted successfully: {}",
+                annotationId
+        );
     }
 
     /**
@@ -137,125 +267,172 @@ public class AnnotationService {
             String annotationId,
             UpdateAnnotationDTO updateDTO) {
 
-        logger.info("Updating annotation with id: {}",
-                annotationId);
+        logger.info(
+                "Updating annotation with id: {}",
+                annotationId
+        );
 
-        AnnotationEntity annotation = annotationRepository
-                .findById(annotationId)
-                .orElseThrow(() -> {
+        AnnotationEntity annotation =
+                annotationRepository
+                        .findById(annotationId)
+                        .orElseThrow(() -> {
 
-                    logger.warn("Annotation not found with id: {}",
-                            annotationId);
+                            logger.warn(
+                                    "Annotation not found with id: {}",
+                                    annotationId
+                            );
 
-                    return new ResourceNotFoundException(
-                            "Annotation not found with id: "
-                                    + annotationId);
-                });
+                            return new ResourceNotFoundException(
+                                    "Annotation not found with id: "
+                                            + annotationId
+                            );
+                        });
 
-        // Update allowed fields
-        annotation.setComment(updateDTO.getComment());
-        annotation.setColor(updateDTO.getColor());
-        annotation.setResolved(updateDTO.getResolved());
+        /*
+         * Only update fields that are allowed
+         * by UpdateAnnotationDTO.
+         */
+        annotation.setComment(
+                updateDTO.getComment()
+        );
 
-        // Update timestamp
-        annotation.setUpdatedAt(LocalDateTime.now());
+        annotation.setColor(
+                updateDTO.getColor()
+        );
+
+        annotation.setResolved(
+                updateDTO.getResolved()
+        );
+
+        annotation.setUpdatedAt(
+                LocalDateTime.now()
+        );
 
         AnnotationEntity updatedAnnotation =
                 annotationRepository.save(annotation);
 
-        logger.info("Annotation updated successfully with id: {}",
-                annotationId);
+        logger.info(
+                "Annotation updated successfully with id: {}",
+                annotationId
+        );
 
         return updatedAnnotation;
     }
 
-/*     Searching method */
-    public Page<AnnotationEntity> searchAnnotations(
-        String keyword,
-        int page,
-        int size,
-        String sortBy,
-        String direction) {
+    /**
+     * Search annotations.
+     */
+    public Page<AnnotationEntity>
+    searchAnnotations(
+            String keyword,
+            int page,
+            int size,
+            String sortBy,
+            String direction) {
 
-    logger.info(
-            "Searching annotations | keyword={} | page={} | size={} | sortBy={} | direction={}",
-            keyword,
-            page,
-            size,
-            sortBy,
-            direction);
-
-    // Allowed sorting fields
-    Pageable pageable =
-        PageableUtil.buildPageable(
+        logger.info(
+                "Searching annotations | keyword={} | page={} | size={} | sortBy={} | direction={}",
+                keyword,
                 page,
                 size,
                 sortBy,
                 direction
         );
-    
-   
-    Page<AnnotationEntity> annotations =
-            annotationRepository.searchAnnotations(
-                    keyword,
-                    pageable);
 
-    logger.info(
-            "Search returned {} annotation(s)",
-            annotations.getNumberOfElements());
+        Pageable pageable =
+                PageableUtil.buildPageable(
+                        page,
+                        size,
+                        sortBy,
+                        direction
+                );
 
-    return annotations;
-}
- /* FILTERING SERVICE */
-public Page<AnnotationEntity> filterAnnotations(
-        String author,
-        Boolean resolved,
-        int page,
-        int size,
-        String sortBy,
-        String direction) {
+        Page<AnnotationEntity> annotations =
+                annotationRepository.searchAnnotations(
+                        keyword,
+                        pageable
+                );
 
-    logger.info(
-            "Filtering annotations | author={} | resolved={}",
-            author,
-            resolved);
-
-    Query query = new Query();
-
-    if (author != null && !author.isBlank()) {
-        query.addCriteria(
-                Criteria.where("author").is(author));
-    }
-
-    if (resolved != null) {
-        query.addCriteria(
-                Criteria.where("resolved").is(resolved));
-    }
-Pageable pageable =
-        PageableUtil.buildPageable(
-                page,
-                size,
-                sortBy,
-                direction
+        logger.info(
+                "Search returned {} annotation(s)",
+                annotations.getNumberOfElements()
         );
-    
 
-   Query countQuery = Query.of(query);
+        return annotations;
+    }
 
-query.with(pageable);
+    /**
+     * Filter annotations.
+     */
+    public Page<AnnotationEntity>
+    filterAnnotations(
+            String author,
+            Boolean resolved,
+            int page,
+            int size,
+            String sortBy,
+            String direction) {
 
-long total = mongoTemplate.count(
-        countQuery,
-        AnnotationEntity.class
-);
+        logger.info(
+                "Filtering annotations | author={} | resolved={}",
+                author,
+                resolved
+        );
 
-List<AnnotationEntity> annotations =
-        mongoTemplate.find(query, AnnotationEntity.class);
+        Query query = new Query();
 
-return new PageImpl<>(
-        annotations,
-        pageable,
-        total
-);
-}
+        /*
+         * AnnotationEntity contains authorId,
+         * not author.
+         */
+        if (author != null &&
+                !author.isBlank()) {
+
+            query.addCriteria(
+                    Criteria.where("authorId")
+                            .is(author)
+            );
+        }
+
+        if (resolved != null) {
+
+            query.addCriteria(
+                    Criteria.where("resolved")
+                            .is(resolved)
+            );
+        }
+
+        Pageable pageable =
+                PageableUtil.buildPageable(
+                        page,
+                        size,
+                        sortBy,
+                        direction
+                );
+
+        Query countQuery =
+                Query.of(query);
+
+        countQuery.with(pageable);
+
+        long total =
+                mongoTemplate.count(
+                        countQuery,
+                        AnnotationEntity.class
+                );
+
+        query.with(pageable);
+
+        List<AnnotationEntity> annotations =
+                mongoTemplate.find(
+                        query,
+                        AnnotationEntity.class
+                );
+
+        return new PageImpl<>(
+                annotations,
+                pageable,
+                total
+        );
+    }
 }

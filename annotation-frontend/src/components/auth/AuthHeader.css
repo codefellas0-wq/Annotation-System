@@ -1,0 +1,150 @@
+/* =========================================================
+   AUTHENTICATION HEADER
+========================================================= */
+
+.auth-header {
+    width: 100%;
+
+    border-bottom:
+        1px solid #e5e7eb;
+
+    background:
+        #ffffff;
+}
+
+
+.auth-header-inner {
+    width: 100%;
+
+    min-height: 68px;
+
+    display: flex;
+
+    align-items: center;
+
+    padding:
+        0 36px;
+
+    box-sizing: border-box;
+}
+
+
+/* =========================================================
+   BRAND
+========================================================= */
+
+.auth-brand {
+    display: inline-flex;
+
+    align-items: center;
+
+    gap: 10px;
+
+    padding: 0;
+
+    border: 0;
+
+    background: transparent;
+
+    color: #111827;
+
+    text-align: left;
+
+    cursor: pointer;
+}
+
+
+.auth-brand-mark {
+    width: 36px;
+    height: 36px;
+
+    display: flex;
+
+    align-items: center;
+
+    justify-content: center;
+
+    border-radius: 9px;
+
+    background:
+        #2563eb;
+
+    color:
+        #ffffff;
+
+    font-size: 15px;
+
+    font-weight: 800;
+
+    box-shadow:
+        0 5px 14px
+        rgba(37, 99, 235, 0.18);
+}
+
+
+.auth-brand-content {
+    display: flex;
+
+    flex-direction: column;
+
+    gap: 2px;
+}
+
+
+.auth-brand-content strong {
+    color:
+        #111827;
+
+    font-size: 14px;
+
+    line-height: 1.2;
+
+    letter-spacing: -0.01em;
+}
+
+
+.auth-brand-content small {
+    color:
+        #9ca3af;
+
+    font-size: 9px;
+
+    line-height: 1.2;
+
+    font-weight: 600;
+
+    letter-spacing: 0.04em;
+
+    text-transform: uppercase;
+}
+
+
+/* =========================================================
+   MOBILE
+========================================================= */
+
+@media (max-width: 600px) {
+
+    .auth-header-inner {
+        min-height: 60px;
+
+        padding:
+            0 16px;
+    }
+
+
+    .auth-brand-mark {
+        width: 33px;
+        height: 33px;
+
+        border-radius: 8px;
+
+        font-size: 13px;
+    }
+
+
+    .auth-brand-content strong {
+        font-size: 12px;
+    }
+
+}

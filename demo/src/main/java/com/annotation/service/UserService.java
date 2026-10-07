@@ -1,7 +1,7 @@
 package com.annotation.service;
 
 import java.time.LocalDateTime;
-
+import com.annotation.security.JwtService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -23,15 +23,17 @@ public class UserService {
 
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
+    private final JwtService jwtService;
 
-    public UserService(
-            UserRepository userRepository,
-            PasswordEncoder passwordEncoder) {
+   public UserService(
+        UserRepository userRepository,
+        PasswordEncoder passwordEncoder,
+        JwtService jwtService) {
 
-        this.userRepository = userRepository;
-        this.passwordEncoder = passwordEncoder;
-    }
-
+    this.userRepository = userRepository;
+    this.passwordEncoder = passwordEncoder;
+    this.jwtService = jwtService;
+}
     /**
      * Register a new user.
      */
@@ -112,8 +114,13 @@ public AuthenticationResponseDTO loginUser(LoginDTO dto) {
             dto.getEmail());
 
     // Temporary token
-    return new AuthenticationResponseDTO(
-            "JWT_COMING_NEXT",
-            "Bearer");
+   String token = jwtService.generateToken(
+        user.getEmail()
+);
+
+return new AuthenticationResponseDTO(
+        token,
+        "Bearer"
+);
 }
 }

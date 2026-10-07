@@ -1,0 +1,229 @@
+/* =========================================================
+   PUBLIC NAVBAR
+========================================================= */
+
+.public-navbar {
+    position: sticky;
+
+    top: 0;
+
+    z-index: 1000;
+
+    width: 100%;
+
+    border-bottom:
+        1px solid #e5e7eb;
+
+    background:
+        rgba(255, 255, 255, 0.96);
+
+    backdrop-filter:
+        blur(12px);
+}
+
+
+.public-navbar-inner {
+    width: 100%;
+
+    min-height: 68px;
+
+    display: flex;
+
+    align-items: center;
+
+    justify-content: space-between;
+
+    padding:
+        0 36px;
+}
+
+
+/* =========================================================
+   BRAND
+========================================================= */
+
+.public-brand {
+    display: inline-flex;
+
+    align-items: center;
+
+    gap: 10px;
+
+    padding: 0;
+
+    border: 0;
+
+    background: transparent;
+
+    color: #111827;
+
+    text-align: left;
+
+    cursor: pointer;
+}
+
+
+.public-brand-mark {
+    width: 36px;
+    height: 36px;
+
+    display: flex;
+
+    align-items: center;
+
+    justify-content: center;
+
+    border-radius: 9px;
+
+    background: #2563eb;
+
+    color: #ffffff;
+
+    font-size: 15px;
+
+    font-weight: 800;
+
+    box-shadow:
+        0 5px 14px
+        rgba(37, 99, 235, 0.18);
+}
+
+
+.public-brand-text {
+    display: flex;
+
+    flex-direction: column;
+
+    gap: 2px;
+}
+
+
+.public-brand-text strong {
+    color: #111827;
+
+    font-size: 13px;
+
+    line-height: 1.2;
+}
+
+
+.public-brand-text small {
+    color: #9ca3af;
+
+    font-size: 9px;
+
+    font-weight: 600;
+
+    letter-spacing: 0.04em;
+
+    text-transform: uppercase;
+}
+
+
+/* =========================================================
+   NAVIGATION
+========================================================= */
+
+.public-navigation {
+    display: flex;
+
+    align-items: center;
+
+    gap: 7px;
+}
+
+
+.public-nav-link {
+    min-height: 36px;
+
+    display: inline-flex;
+
+    align-items: center;
+
+    justify-content: center;
+
+    padding:
+        0 13px;
+
+    border-radius: 7px;
+
+    color: #64748b;
+
+    font-size: 12px;
+
+    font-weight: 700;
+
+    text-decoration: none;
+
+    transition:
+        background 0.15s ease,
+        color 0.15s ease;
+}
+
+
+.public-nav-link:hover {
+    background: #f8fafc;
+
+    color: #111827;
+}
+
+
+.public-nav-link.active {
+    color: #2563eb;
+
+    background: #eff6ff;
+}
+
+
+.public-nav-link.register {
+    border:
+        1px solid #2563eb;
+
+    background: #2563eb;
+
+    color: #ffffff;
+}
+
+
+.public-nav-link.register:hover,
+.public-nav-link.register.active {
+    background: #1d4ed8;
+
+    color: #ffffff;
+}
+
+
+/* =========================================================
+   RESPONSIVE
+========================================================= */
+
+@media (max-width: 600px) {
+
+    .public-navbar-inner {
+        min-height: 60px;
+
+        padding:
+            0 14px;
+    }
+
+
+    .public-brand-text {
+        display: none;
+    }
+
+
+    .public-navigation {
+        gap: 4px;
+    }
+
+
+    .public-nav-link {
+        min-height: 34px;
+
+        padding:
+            0 10px;
+
+        font-size: 11px;
+    }
+
+}

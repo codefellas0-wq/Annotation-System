@@ -15,9 +15,12 @@ public class DocumentEntity {
 
     private String contentType;
 
-    private String extractedText;
+    private Long fileSize;
 
-    private Long totalCharacters;
+    /**
+     * Reference to the original file stored in MongoDB GridFS.
+     */
+    private String gridFsFileId;
 
     private LocalDateTime uploadedAt;
 
@@ -39,12 +42,12 @@ public class DocumentEntity {
         return contentType;
     }
 
-    public String getExtractedText() {
-        return extractedText;
+    public Long getFileSize() {
+        return fileSize;
     }
 
-    public Long getTotalCharacters() {
-        return totalCharacters;
+    public String getGridFsFileId() {
+        return gridFsFileId;
     }
 
     public LocalDateTime getUploadedAt() {
@@ -65,12 +68,12 @@ public class DocumentEntity {
         this.contentType = contentType;
     }
 
-    public void setExtractedText(String extractedText) {
-        this.extractedText = extractedText;
+    public void setFileSize(Long fileSize) {
+        this.fileSize = fileSize;
     }
 
-    public void setTotalCharacters(Long totalCharacters) {
-        this.totalCharacters = totalCharacters;
+    public void setGridFsFileId(String gridFsFileId) {
+        this.gridFsFileId = gridFsFileId;
     }
 
     public void setUploadedAt(LocalDateTime uploadedAt) {
@@ -83,7 +86,8 @@ public class DocumentEntity {
                 "id='" + id + '\'' +
                 ", fileName='" + fileName + '\'' +
                 ", contentType='" + contentType + '\'' +
-                ", totalCharacters=" + totalCharacters +
+                ", fileSize=" + fileSize +
+                ", gridFsFileId='" + gridFsFileId + '\'' +
                 ", uploadedAt=" + uploadedAt +
                 '}';
     }

@@ -1,0 +1,1406 @@
+.document-viewer {
+    min-height: 100vh;
+
+    display: flex;
+    flex-direction: column;
+
+    background: #f1f5f9;
+
+    color: #0f172a;
+}
+
+
+/* =========================================================
+   HEADER
+========================================================= */
+
+.document-header {
+    position: sticky;
+
+    top: 0;
+
+    z-index: 100;
+
+    min-height: 68px;
+
+    display: flex;
+
+    align-items: center;
+
+    justify-content: space-between;
+
+    gap: 20px;
+
+    padding: 10px 22px;
+
+    border-bottom: 1px solid #e2e8f0;
+
+    background:
+        rgba(255, 255, 255, 0.96);
+
+    backdrop-filter: blur(12px);
+
+    box-shadow:
+        0 1px 4px rgba(15, 23, 42, 0.04);
+}
+
+
+.document-header-left,
+.document-header-right {
+    display: flex;
+
+    align-items: center;
+
+    min-width: 0;
+}
+
+
+.document-header-left {
+    gap: 18px;
+}
+
+
+.document-header-right {
+    gap: 12px;
+}
+
+
+.viewer-back-button {
+    min-height: 38px;
+
+    display: inline-flex;
+
+    align-items: center;
+
+    gap: 8px;
+
+    padding: 0 11px;
+
+    border: 1px solid #e2e8f0;
+
+    border-radius: 8px;
+
+    background: #ffffff;
+
+    color: #334155;
+
+    font-size: 12px;
+
+    font-weight: 600;
+
+    cursor: pointer;
+
+    transition:
+        border-color 0.15s ease,
+        background 0.15s ease;
+}
+
+
+.viewer-back-button:hover {
+    border-color: #bfdbfe;
+
+    background: #f8fbff;
+
+    color: #2563eb;
+}
+
+
+.viewer-back-button span {
+    font-size: 17px;
+
+    line-height: 1;
+}
+
+
+.document-header-divider {
+    width: 1px;
+
+    height: 34px;
+
+    background: #e2e8f0;
+}
+
+
+.document-title {
+    min-width: 0;
+}
+
+
+.document-title > span,
+.annotation-popup-header span,
+.annotation-details-header span {
+    display: block;
+
+    margin-bottom: 3px;
+
+    color: #2563eb;
+
+    font-size: 9px;
+
+    font-weight: 800;
+
+    letter-spacing: 0.12em;
+}
+
+
+.document-title h1 {
+    overflow: hidden;
+
+    margin: 0;
+
+    font-size: 16px;
+
+    line-height: 1.2;
+
+    font-weight: 700;
+
+    text-overflow: ellipsis;
+
+    white-space: nowrap;
+}
+
+
+.document-title p {
+    overflow: hidden;
+
+    margin: 3px 0 0;
+
+    color: #94a3b8;
+
+    font-size: 10px;
+
+    text-overflow: ellipsis;
+
+    white-space: nowrap;
+}
+
+
+.page-count {
+    display: flex;
+
+    align-items: baseline;
+
+    gap: 4px;
+
+    padding: 0 9px;
+
+    color: #64748b;
+
+    font-size: 11px;
+}
+
+
+.page-count strong {
+    color: #0f172a;
+
+    font-size: 13px;
+}
+
+
+/* =========================================================
+   BUTTON SYSTEM
+========================================================= */
+
+.viewer-button {
+    min-height: 38px;
+
+    display: inline-flex;
+
+    align-items: center;
+
+    justify-content: center;
+
+    gap: 7px;
+
+    padding: 0 13px;
+
+    border: 1px solid #dbe3ed;
+
+    border-radius: 8px;
+
+    background: #ffffff;
+
+    color: #334155;
+
+    font-size: 12px;
+
+    font-weight: 600;
+
+    cursor: pointer;
+
+    transition:
+        background 0.15s ease,
+        border-color 0.15s ease,
+        color 0.15s ease,
+        transform 0.15s ease;
+}
+
+
+.viewer-button:hover {
+    border-color: #bfdbfe;
+
+    background: #f8fbff;
+
+    color: #2563eb;
+}
+
+
+.viewer-button:active {
+    transform: translateY(1px);
+}
+
+
+.viewer-button.primary {
+    border-color: #2563eb;
+
+    background: #2563eb;
+
+    color: #ffffff;
+}
+
+
+.viewer-button.primary:hover {
+    border-color: #1d4ed8;
+
+    background: #1d4ed8;
+
+    color: #ffffff;
+}
+
+
+.viewer-button.danger {
+    border-color: #dc2626;
+
+    background: #dc2626;
+
+    color: #ffffff;
+}
+
+
+.viewer-button.danger:hover {
+    border-color: #b91c1c;
+
+    background: #b91c1c;
+
+    color: #ffffff;
+}
+
+
+.viewer-button:disabled {
+    opacity: 0.55;
+
+    cursor: not-allowed;
+}
+
+
+/* =========================================================
+   WORKSPACE
+========================================================= */
+
+.document-workspace {
+    flex: 1;
+
+    min-height: 0;
+
+    display: flex;
+
+    overflow: hidden;
+}
+
+
+/* =========================================================
+   PDF AREA
+========================================================= */
+
+.pdf-container {
+    flex: 1;
+
+    min-width: 0;
+
+    height: calc(100vh - 68px);
+
+    overflow-y: auto;
+
+    overflow-x: auto;
+
+    padding: 30px 35px 60px;
+
+    background:
+        radial-gradient(
+            circle at top,
+            #e8eef7 0,
+            #f1f5f9 45%,
+            #e8eef7 100%
+        );
+
+    scrollbar-width: thin;
+
+    scrollbar-color:
+        #cbd5e1 transparent;
+}
+
+
+.pdf-container::-webkit-scrollbar {
+    width: 9px;
+
+    height: 9px;
+}
+
+
+.pdf-container::-webkit-scrollbar-thumb {
+    border-radius: 20px;
+
+    background: #cbd5e1;
+}
+
+
+.pdf-container::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+
+.react-pdf__Document {
+    width: max-content;
+
+    min-width: 850px;
+
+    margin: 0 auto;
+}
+
+
+.pdf-page-wrapper {
+    position: relative;
+
+    width: 850px;
+
+    margin: 0 auto 28px;
+
+    background: #ffffff;
+
+    box-shadow:
+        0 2px 6px rgba(15, 23, 42, 0.08),
+        0 12px 35px rgba(15, 23, 42, 0.08);
+}
+
+
+.pdf-page-wrapper canvas {
+    display: block;
+}
+
+
+.pdf-page-number {
+    position: absolute;
+
+    right: 10px;
+
+    bottom: -20px;
+
+    z-index: 5;
+
+    color: #94a3b8;
+
+    font-size: 9px;
+
+    font-weight: 600;
+
+    pointer-events: none;
+}
+
+
+/* =========================================================
+   ANNOTATION LAYER
+========================================================= */
+
+.annotation-layer {
+    position: absolute;
+
+    inset: 0;
+
+    z-index: 10;
+
+    pointer-events: none;
+}
+
+
+.annotation-highlight {
+    position: absolute;
+
+    border-radius: 3px;
+
+    pointer-events: auto;
+
+    cursor: pointer;
+
+    transition:
+        outline 0.18s ease,
+        box-shadow 0.18s ease,
+        filter 0.18s ease;
+}
+
+
+.annotation-highlight:hover {
+    filter: brightness(0.96);
+
+    outline:
+        2px solid
+        rgba(37, 99, 235, 0.45);
+}
+
+
+.annotation-highlight.active {
+    z-index: 20;
+
+    outline:
+        3px solid
+        #2563eb;
+
+    box-shadow:
+        0 0 0 4px
+        rgba(37, 99, 235, 0.18);
+}
+
+
+/* =========================================================
+   SIDEBAR
+========================================================= */
+
+.annotation-sidebar-wrapper {
+    width: 360px;
+
+    flex: 0 0 360px;
+
+    height: calc(100vh - 68px);
+
+    display: flex;
+
+    flex-direction: column;
+
+    overflow: hidden;
+
+    border-left: 1px solid #e2e8f0;
+
+    background: #ffffff;
+}
+
+
+.annotation-sidebar-heading {
+    min-height: 68px;
+
+    display: flex;
+
+    align-items: center;
+
+    justify-content: space-between;
+
+    gap: 15px;
+
+    padding: 12px 18px;
+
+    border-bottom: 1px solid #e2e8f0;
+
+    background: #ffffff;
+}
+
+
+.annotation-sidebar-heading > div > span {
+    display: block;
+
+    margin-bottom: 3px;
+
+    color: #2563eb;
+
+    font-size: 9px;
+
+    font-weight: 800;
+
+    letter-spacing: 0.12em;
+}
+
+
+.annotation-sidebar-heading h2 {
+    margin: 0;
+
+    font-size: 15px;
+
+    line-height: 1.2;
+}
+
+
+.annotation-sidebar-heading > strong {
+    min-width: 27px;
+    height: 27px;
+
+    display: flex;
+
+    align-items: center;
+
+    justify-content: center;
+
+    border-radius: 50%;
+
+    background: #eff6ff;
+
+    color: #2563eb;
+
+    font-size: 11px;
+}
+
+
+/*
+ * The existing AnnotationSidebar component owns
+ * the annotation list itself. These rules provide
+ * the surrounding workspace without changing its API.
+ */
+
+.annotation-sidebar-wrapper > *:last-child {
+    flex: 1;
+
+    min-height: 0;
+
+    overflow-y: auto;
+}
+
+
+/* =========================================================
+   NEW ANNOTATION POPUP
+========================================================= */
+
+.annotation-popup {
+    position: fixed;
+
+    top: 88px;
+
+    right: 25px;
+
+    z-index: 2000;
+
+    width: 380px;
+
+    max-width:
+        calc(100vw - 30px);
+
+    max-height:
+        calc(100vh - 110px);
+
+    overflow-y: auto;
+
+    padding: 20px;
+
+    border:
+        1px solid
+        #e2e8f0;
+
+    border-radius: 14px;
+
+    background: #ffffff;
+
+    box-shadow:
+        0 20px 55px
+        rgba(15, 23, 42, 0.18);
+}
+
+
+.annotation-popup-header,
+.annotation-details-header {
+    display: flex;
+
+    align-items: flex-start;
+
+    justify-content: space-between;
+
+    gap: 15px;
+
+    padding-bottom: 15px;
+
+    border-bottom:
+        1px solid
+        #e2e8f0;
+}
+
+
+.annotation-popup-header h3,
+.annotation-details-header h3 {
+    margin: 0;
+
+    font-size: 18px;
+
+    line-height: 1.25;
+}
+
+
+.modal-close-button {
+    width: 32px;
+    height: 32px;
+
+    flex-shrink: 0;
+
+    display: flex;
+
+    align-items: center;
+    justify-content: center;
+
+    border: 0;
+
+    border-radius: 7px;
+
+    background: #f8fafc;
+
+    color: #64748b;
+
+    font-size: 20px;
+
+    cursor: pointer;
+}
+
+
+.modal-close-button:hover {
+    background: #f1f5f9;
+
+    color: #0f172a;
+}
+
+
+/* =========================================================
+   SELECTED TEXT
+========================================================= */
+
+.selected-text {
+    margin-top: 17px;
+
+    padding: 13px;
+
+    border:
+        1px solid
+        #e2e8f0;
+
+    border-radius: 9px;
+
+    background: #f8fafc;
+}
+
+
+.selected-text label,
+.annotation-detail-section label {
+    display: block;
+
+    margin-bottom: 7px;
+
+    color: #64748b;
+
+    font-size: 10px;
+
+    font-weight: 800;
+
+    letter-spacing: 0.06em;
+
+    text-transform: uppercase;
+}
+
+
+.selected-text p {
+    max-height: 105px;
+
+    overflow-y: auto;
+
+    margin: 0;
+
+    color: #334155;
+
+    font-size: 12px;
+
+    line-height: 1.6;
+
+    font-style: italic;
+}
+
+
+/* =========================================================
+   FIELDS
+========================================================= */
+
+.annotation-field {
+    margin-top: 17px;
+}
+
+
+.annotation-field label {
+    display: block;
+
+    margin-bottom: 7px;
+
+    color: #334155;
+
+    font-size: 12px;
+
+    font-weight: 700;
+}
+
+
+.annotation-field textarea {
+    width: 100%;
+
+    min-height: 105px;
+
+    box-sizing: border-box;
+
+    resize: vertical;
+
+    padding: 11px;
+
+    border:
+        1px solid
+        #dbe3ed;
+
+    border-radius: 8px;
+
+    outline: none;
+
+    background: #ffffff;
+
+    color: #0f172a;
+
+    font-family: inherit;
+
+    font-size: 12px;
+
+    line-height: 1.55;
+}
+
+
+.annotation-field textarea:focus {
+    border-color: #2563eb;
+
+    box-shadow:
+        0 0 0 3px
+        rgba(37, 99, 235, 0.09);
+}
+
+
+.annotation-field small {
+    display: block;
+
+    margin-top: 5px;
+
+    color: #94a3b8;
+
+    font-size: 9px;
+
+    text-align: right;
+}
+
+
+/* =========================================================
+   COLORS
+========================================================= */
+
+.color-options {
+    display: flex;
+
+    flex-wrap: wrap;
+
+    gap: 8px;
+}
+
+
+.color-button {
+    min-height: 34px;
+
+    display: inline-flex;
+
+    align-items: center;
+
+    gap: 7px;
+
+    padding: 0 10px;
+
+    border:
+        1px solid
+        #dbe3ed;
+
+    border-radius: 7px;
+
+    background: #ffffff;
+
+    color: #475569;
+
+    font-size: 11px;
+
+    font-weight: 600;
+
+    text-transform: capitalize;
+
+    cursor: pointer;
+}
+
+
+.color-button > span {
+    width: 10px;
+    height: 10px;
+
+    border-radius: 50%;
+}
+
+
+.color-button.yellow > span {
+    background: #facc15;
+}
+
+
+.color-button.blue > span {
+    background: #3b82f6;
+}
+
+
+.color-button.green > span {
+    background: #22c55e;
+}
+
+
+.color-button.selected {
+    border-color: #2563eb;
+
+    box-shadow:
+        0 0 0 2px
+        rgba(37, 99, 235, 0.1);
+}
+
+
+/* =========================================================
+   ACTIONS
+========================================================= */
+
+.annotation-popup-actions,
+.annotation-details-actions {
+    display: flex;
+
+    justify-content: flex-end;
+
+    gap: 9px;
+
+    margin-top: 20px;
+}
+
+
+/* =========================================================
+   MODALS
+========================================================= */
+
+.annotation-modal-backdrop {
+    position: fixed;
+
+    inset: 0;
+
+    z-index: 3000;
+
+    display: flex;
+
+    align-items: center;
+
+    justify-content: center;
+
+    padding: 20px;
+
+    background:
+        rgba(15, 23, 42, 0.45);
+
+    backdrop-filter: blur(3px);
+}
+
+
+.annotation-modal {
+    width: 440px;
+
+    max-width:
+        100%;
+
+    max-height:
+        calc(100vh - 40px);
+
+    overflow-y: auto;
+
+    padding: 20px;
+
+    border:
+        1px solid
+        #e2e8f0;
+
+    border-radius: 14px;
+
+    background: #ffffff;
+
+    box-shadow:
+        0 25px 70px
+        rgba(15, 23, 42, 0.25);
+}
+
+
+.annotation-details-color {
+    display: flex;
+
+    align-items: center;
+
+    gap: 8px;
+
+    margin-top: 16px;
+
+    color: #64748b;
+
+    font-size: 11px;
+
+    font-weight: 600;
+
+    text-transform: capitalize;
+}
+
+
+.annotation-color-dot {
+    width: 11px;
+    height: 11px;
+
+    border-radius: 50%;
+
+    box-shadow:
+        inset 0 0 0 1px
+        rgba(15, 23, 42, 0.12);
+}
+
+
+.annotation-color-dot.yellow {
+    background: #facc15;
+}
+
+
+.annotation-color-dot.blue {
+    background: #3b82f6;
+}
+
+
+.annotation-color-dot.green {
+    background: #22c55e;
+}
+
+
+.annotation-detail-section {
+    margin-top: 20px;
+}
+
+
+.annotation-detail-selected-text {
+    max-height: 120px;
+
+    overflow-y: auto;
+
+    margin: 0;
+
+    padding: 12px;
+
+    border-radius: 8px;
+
+    background: #f8fafc;
+
+    color: #334155;
+
+    font-size: 12px;
+
+    line-height: 1.6;
+
+    font-style: italic;
+}
+
+
+.annotation-detail-comment {
+    margin: 0;
+
+    color: #334155;
+
+    font-size: 13px;
+
+    line-height: 1.65;
+
+    white-space: pre-wrap;
+}
+
+
+.annotation-detail-meta {
+    display: grid;
+
+    grid-template-columns:
+        repeat(3, minmax(0, 1fr));
+
+    gap: 9px;
+
+    margin-top: 20px;
+
+    padding-top: 16px;
+
+    border-top:
+        1px solid
+        #e2e8f0;
+}
+
+
+.annotation-detail-meta div {
+    min-width: 0;
+
+    display: flex;
+
+    flex-direction: column;
+
+    gap: 4px;
+}
+
+
+.annotation-detail-meta span {
+    color: #94a3b8;
+
+    font-size: 9px;
+
+    font-weight: 700;
+
+    text-transform: uppercase;
+}
+
+
+.annotation-detail-meta strong {
+    overflow: hidden;
+
+    color: #334155;
+
+    font-size: 11px;
+
+    text-overflow: ellipsis;
+
+    white-space: nowrap;
+}
+
+
+/* =========================================================
+   DELETE CONFIRMATION
+========================================================= */
+
+.confirmation-modal {
+    width: 400px;
+}
+
+
+.delete-confirmation-content {
+    display: flex;
+
+    flex-direction: column;
+
+    align-items: center;
+
+    padding: 25px 10px 5px;
+
+    text-align: center;
+}
+
+
+.delete-icon {
+    width: 45px;
+    height: 45px;
+
+    display: flex;
+
+    align-items: center;
+    justify-content: center;
+
+    border-radius: 50%;
+
+    background: #fef2f2;
+
+    color: #dc2626;
+
+    font-size: 20px;
+
+    font-weight: 800;
+}
+
+
+.delete-confirmation-content p {
+    margin: 15px 0 5px;
+
+    color: #334155;
+
+    font-size: 13px;
+
+    line-height: 1.5;
+}
+
+
+.delete-confirmation-content strong {
+    color: #dc2626;
+
+    font-size: 11px;
+}
+
+
+/* =========================================================
+   STATUS
+========================================================= */
+
+.document-status {
+    min-height: 100vh;
+
+    display: flex;
+
+    flex-direction: column;
+
+    align-items: center;
+
+    justify-content: center;
+
+    gap: 8px;
+
+    padding: 30px;
+
+    background: #f8fafc;
+
+    text-align: center;
+}
+
+
+.document-status h2 {
+    margin: 7px 0 0;
+
+    font-size: 20px;
+}
+
+
+.document-status p {
+    max-width: 450px;
+
+    margin: 0 0 12px;
+
+    color: #64748b;
+
+    font-size: 13px;
+
+    line-height: 1.6;
+}
+
+
+.document-status-spinner {
+    width: 32px;
+    height: 32px;
+
+    border:
+        3px solid
+        #dbeafe;
+
+    border-top-color:
+        #2563eb;
+
+    border-radius: 50%;
+
+    animation:
+        document-viewer-spin 0.8s linear infinite;
+}
+
+
+.document-status-icon {
+    width: 45px;
+    height: 45px;
+
+    display: flex;
+
+    align-items: center;
+    justify-content: center;
+
+    border-radius: 50%;
+
+    background: #fef2f2;
+
+    color: #dc2626;
+
+    font-size: 20px;
+
+    font-weight: 800;
+}
+
+
+@keyframes document-viewer-spin {
+
+    to {
+        transform: rotate(360deg);
+    }
+
+}
+
+
+/* =========================================================
+   RESPONSIVE
+========================================================= */
+
+@media (max-width: 1100px) {
+
+    .annotation-sidebar-wrapper {
+        width: 320px;
+
+        flex-basis: 320px;
+    }
+
+
+    .pdf-container {
+        padding-left: 20px;
+
+        padding-right: 20px;
+    }
+
+}
+
+
+@media (max-width: 850px) {
+
+    .document-header {
+        padding:
+            9px 14px;
+    }
+
+
+    .document-header-right {
+        display: none;
+    }
+
+
+    .document-header-divider {
+        display: none;
+    }
+
+
+    .document-workspace {
+        flex-direction: column;
+
+        overflow: visible;
+    }
+
+
+    .pdf-container {
+        height: auto;
+
+        min-height: calc(100vh - 68px);
+
+        overflow-x: auto;
+
+        overflow-y: visible;
+
+        padding:
+            24px 12px 40px;
+    }
+
+
+    .annotation-sidebar-wrapper {
+        width: 100%;
+
+        flex: none;
+
+        height: auto;
+
+        min-height: 360px;
+
+        border-top:
+            1px solid
+            #e2e8f0;
+
+        border-left: 0;
+    }
+
+
+    .annotation-sidebar-wrapper > *:last-child {
+        max-height: 420px;
+
+        overflow-y: auto;
+    }
+
+
+    .annotation-popup {
+        top: auto;
+
+        right: 12px;
+
+        bottom: 12px;
+
+        left: 12px;
+
+        width: auto;
+
+        max-width: none;
+
+        max-height:
+            calc(100vh - 90px);
+    }
+
+}
+
+
+@media (max-width: 520px) {
+
+    .document-header {
+        min-height: 60px;
+    }
+
+
+    .document-title h1 {
+        max-width: 170px;
+
+        font-size: 14px;
+    }
+
+
+    .document-title p {
+        max-width: 170px;
+    }
+
+
+    .viewer-back-button {
+        padding: 0 8px;
+
+        font-size: 11px;
+    }
+
+
+    .document-header-left {
+        gap: 9px;
+    }
+
+
+    .pdf-container {
+        padding:
+            18px 8px 35px;
+    }
+
+
+    .annotation-detail-meta {
+        grid-template-columns:
+            1fr 1fr;
+    }
+
+
+    .annotation-detail-meta div:last-child {
+        grid-column:
+            1 / -1;
+    }
+
+
+    .annotation-modal {
+        padding: 16px;
+    }
+
+
+    .annotation-popup {
+        padding: 16px;
+    }
+
+
+    .annotation-popup-actions,
+    .annotation-details-actions {
+        flex-direction: column-reverse;
+    }
+
+
+    .annotation-popup-actions .viewer-button,
+    .annotation-details-actions .viewer-button {
+        width: 100%;
+    }
+
+}

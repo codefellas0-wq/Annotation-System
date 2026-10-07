@@ -1,98 +1,182 @@
 package com.annotation.service;
 
-import com.annotation.dto.DocumentRequest;
+import java.io.IOException;
+import java.time.LocalDateTime;
+import java.util.List;
+
+import org.bson.types.ObjectId;
+import org.springframework.data.mongodb.gridfs.GridFsTemplate;
+import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
+
+import com.annotation.exception.ResourceNotFoundException;
 import com.annotation.exception.UnsupportedFileTypeException;
 import com.annotation.model.DocumentEntity;
 import com.annotation.repository.DocumentRepository;
 
-import org.springframework.stereotype.Service;
-import org.springframework.web.multipart.MultipartFile;
-import com.annotation.parser.DocumentParser;
-import java.util.List;
-import java.io.IOException;
-import java.time.LocalDateTime;
 
+import org.bson.types.ObjectId;
 
+import org.springframework.data.mongodb.gridfs.GridFsResource;
+import org.springframework.data.mongodb.core.query.Criteria;
+import org.springframework.data.mongodb.core.query.Query;
+import com.mongodb.client.gridfs.model.GridFSFile;
 @Service
 public class DocumentService {
 
-   private final DocumentRepository documentRepository;
-private final List<DocumentParser> parsers;
+    private final DocumentRepository documentRepository;
+    private final GridFsTemplate gridFsTemplate;
 
-public DocumentService(DocumentRepository documentRepository,
-                       List<DocumentParser> parsers) {
-    this.documentRepository = documentRepository;
-    this.parsers = parsers;
-}
+    public DocumentService(
+            DocumentRepository documentRepository,
+            GridFsTemplate gridFsTemplate) {
+
+        this.documentRepository = documentRepository;
+        this.gridFsTemplate = gridFsTemplate;
+    }
+
+    /**
+     * Upload and store the original document in MongoDB GridFS.
+     */
     public DocumentEntity uploadDocument(MultipartFile file) {
 
-        // Validate file
+        // Validate empty file
         if (file.isEmpty()) {
-            throw new RuntimeException("File cannot be empty.");
+            throw new IllegalArgumentException(
+                    "File cannot be empty."
+            );
         }
 
-        if (file.getOriginalFilename() == null ||
-                file.getOriginalFilename().isBlank()) {
-            throw new RuntimeException("Invalid file name.");
+        // Validate file name
+        String originalFileName =
+                file.getOriginalFilename();
+
+        if (originalFileName == null ||
+                originalFileName.isBlank()) {
+
+            throw new IllegalArgumentException(
+                    "Invalid file name."
+            );
         }
 
+        // Validate file size
         if (file.getSize() > 10 * 1024 * 1024) {
-            throw new RuntimeException("Maximum file size is 10 MB.");
+
+            throw new IllegalArgumentException(
+                    "Maximum file size is 10 MB."
+            );
         }
 
-        String fileName = file.getOriginalFilename().toLowerCase();
+        // Validate extension
+        String fileName =
+                originalFileName.toLowerCase();
 
         if (!(fileName.endsWith(".txt")
                 || fileName.endsWith(".pdf")
                 || fileName.endsWith(".docx"))) {
 
-            throw new RuntimeException("Only TXT, PDF and DOCX files are allowed.");
+            throw new UnsupportedFileTypeException(
+                    "Only TXT, PDF and DOCX files are allowed."
+            );
         }
 
         try {
 
-            // For now, extract only TXT files
-            String extractedText = null;
+            /*
+             * Store ORIGINAL file in MongoDB GridFS.
+             */
+            ObjectId gridFsFileId =
+                    gridFsTemplate.store(
+                            file.getInputStream(),
+                            originalFileName,
+                            file.getContentType()
+                    );
 
-for (DocumentParser parser : parsers) {
+            /*
+             * Store metadata/reference in documents collection.
+             */
+            DocumentEntity document =
+                    new DocumentEntity();
 
-    if (parser.supports(fileName)) {
-        extractedText = parser.extractText(file);
-        break;
-    }
-}
+            document.setFileName(originalFileName);
 
-if (extractedText == null) {
-    throw new UnsupportedFileTypeException(
-    "No parser available for this file type."
-);
-}
-            // Create entity
-            DocumentEntity document = new DocumentEntity();
+            document.setContentType(
+                    file.getContentType()
+            );
 
-            document.setFileName(file.getOriginalFilename());
-            document.setContentType(file.getContentType());
-            document.setExtractedText(extractedText);
-            document.setTotalCharacters((long) extractedText.length());
-            document.setUploadedAt(LocalDateTime.now());
+            document.setFileSize(
+                    file.getSize()
+            );
 
-            // Save to MongoDB
-            return documentRepository.save(document);
+            document.setGridFsFileId(
+                    gridFsFileId.toHexString()
+            );
+
+            document.setUploadedAt(
+                    LocalDateTime.now()
+            );
+
+            DocumentEntity savedDocument =
+                    documentRepository.save(document);
+
+            return savedDocument;
 
         } catch (IOException e) {
-            throw new RuntimeException("Failed to read uploaded file.", e);
+
+            throw new RuntimeException(
+                    "Failed to store uploaded file.",
+                    e
+            );
         }
     }
-    public DocumentEntity saveDocument(DocumentRequest request) {
 
-    DocumentEntity document = new DocumentEntity();
+    /**
+     * Retrieve all document metadata.
+     */
+    public List<DocumentEntity> getAllDocuments() {
 
-    document.setFileName(request.getFileName());
-    document.setContentType(request.getContentType());
-    document.setExtractedText(request.getExtractedText());
-    document.setTotalCharacters((long) request.getExtractedText().length());
-    document.setUploadedAt(LocalDateTime.now());
+        return documentRepository.findAll();
+    }
 
-    return documentRepository.save(document);
+    /**
+     * Retrieve document metadata by document ID.
+     */
+    public DocumentEntity getDocumentById(
+            String documentId) {
+
+        return documentRepository
+                .findById(documentId)
+                .orElseThrow(() ->
+                        new ResourceNotFoundException(
+                                "Document not found with id: "
+                                        + documentId
+                        )
+                );
+    }
+
+    public GridFsResource getOriginalFile(String documentId) {
+
+    DocumentEntity document =
+            getDocumentById(documentId);
+
+    ObjectId gridFsFileId =
+            new ObjectId(document.getGridFsFileId());
+
+    GridFSFile file =
+            gridFsTemplate.findOne(
+                    Query.query(
+                            Criteria.where("_id")
+                                    .is(gridFsFileId)
+                    )
+            );
+
+    if (file == null) {
+        throw new ResourceNotFoundException(
+                "Original file not found for document: "
+                        + documentId
+        );
+    }
+
+    return gridFsTemplate.getResource(file);
 }
 }

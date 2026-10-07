@@ -1,6 +1,8 @@
 package com.annotation.model;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
@@ -17,9 +19,25 @@ public class AnnotationEntity {
     private String documentId;
 
     /**
-     * The exact text selected by the user.
+     * Exact text selected by the user.
      */
     private String selectedText;
+
+    /**
+     * PDF page containing the selection.
+     * Pages are 1-based.
+     */
+    private Integer page;
+
+    /**
+     * Individual rectangles occupied by
+     * the selected text.
+     *
+     * Multiple rectangles are required when
+     * the selection spans multiple lines.
+     */
+    private List<AnnotationRectangle> rectangles =
+            new ArrayList<>();
 
     /**
      * User's annotation/comment.
@@ -27,22 +45,12 @@ public class AnnotationEntity {
     private String comment;
 
     /**
-     * Name or identifier of the annotation author.
+     * ID of the authenticated annotation author.
      */
-    private String author;
+    private String authorId;
 
     /**
-     * Starting character position of the selected text.
-     */
-    private Integer startOffset;
-
-    /**
-     * Ending character position of the selected text.
-     */
-    private Integer endOffset;
-
-    /**
-     * Highlight color (Example: yellow, #FFFF00).
+     * Highlight color.
      */
     private String color;
 
@@ -62,9 +70,17 @@ public class AnnotationEntity {
     private LocalDateTime updatedAt;
 
     public AnnotationEntity() {
+
         this.resolved = false;
-        this.createdAt = LocalDateTime.now();
-        this.updatedAt = LocalDateTime.now();
+
+        this.createdAt =
+                LocalDateTime.now();
+
+        this.updatedAt =
+                LocalDateTime.now();
+
+        this.rectangles =
+                new ArrayList<>();
     }
 
     public String getId() {
@@ -91,6 +107,24 @@ public class AnnotationEntity {
         this.selectedText = selectedText;
     }
 
+    public Integer getPage() {
+        return page;
+    }
+
+    public void setPage(Integer page) {
+        this.page = page;
+    }
+
+    public List<AnnotationRectangle> getRectangles() {
+        return rectangles;
+    }
+
+    public void setRectangles(
+            List<AnnotationRectangle> rectangles) {
+
+        this.rectangles = rectangles;
+    }
+
     public String getComment() {
         return comment;
     }
@@ -99,28 +133,12 @@ public class AnnotationEntity {
         this.comment = comment;
     }
 
-    public String getAuthor() {
-        return author;
+    public String getAuthorId() {
+        return authorId;
     }
 
-    public void setAuthor(String author) {
-        this.author = author;
-    }
-
-    public Integer getStartOffset() {
-        return startOffset;
-    }
-
-    public void setStartOffset(Integer startOffset) {
-        this.startOffset = startOffset;
-    }
-
-    public Integer getEndOffset() {
-        return endOffset;
-    }
-
-    public void setEndOffset(Integer endOffset) {
-        this.endOffset = endOffset;
+    public void setAuthorId(String authorId) {
+        this.authorId = authorId;
     }
 
     public String getColor() {
@@ -143,7 +161,9 @@ public class AnnotationEntity {
         return createdAt;
     }
 
-    public void setCreatedAt(LocalDateTime createdAt) {
+    public void setCreatedAt(
+            LocalDateTime createdAt) {
+
         this.createdAt = createdAt;
     }
 
@@ -151,16 +171,24 @@ public class AnnotationEntity {
         return updatedAt;
     }
 
-    public void setUpdatedAt(LocalDateTime updatedAt) {
+    public void setUpdatedAt(
+            LocalDateTime updatedAt) {
+
         this.updatedAt = updatedAt;
     }
 
     @Override
     public String toString() {
+
         return "AnnotationEntity{" +
                 "id='" + id + '\'' +
                 ", documentId='" + documentId + '\'' +
-                ", author='" + author + '\'' +
+                ", selectedText='" + selectedText + '\'' +
+                ", page=" + page +
+                ", rectangles=" + rectangles +
+                ", comment='" + comment + '\'' +
+                ", authorId='" + authorId + '\'' +
+                ", color='" + color + '\'' +
                 ", resolved=" + resolved +
                 ", createdAt=" + createdAt +
                 ", updatedAt=" + updatedAt +
